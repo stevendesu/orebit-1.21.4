@@ -31,17 +31,13 @@ public class AllyBotEntity extends FakePlayerEntity {
 
         if (owner == null || owner == this) return;
 
-        // Get the bot's and owner's positions
         BlockPos botPos = this.getBlockPos();
         BlockPos ownerPos = owner.getBlockPos();
 
-        // Define grid parameters
-        int size = 100; // grid width/height
+        int size = 100;
         int originX = botPos.getX() - size / 2;
         int originZ = botPos.getZ() - size / 2;
         
-        // If no path or the target has moved, recalculate the path
-        // Also, make sure owner is within this grid region
         int targetGridX = ownerPos.getX() - originX;
         int targetGridZ = ownerPos.getZ() - originZ;
         if (currentPath == null 
@@ -50,22 +46,20 @@ public class AllyBotEntity extends FakePlayerEntity {
             
             AStarPathfinding pathfinding = new AStarPathfinding();
             int[][] grid = createGrid(originX, originZ, size, botPos.getY());
-            // The bot is in the center of the grid
-            AStarPathfinding.Node start = new AStarPathfinding.Node(size / 2, size / 2);
-            AStarPathfinding.Node target = new AStarPathfinding.Node(targetGridX, targetGridZ);
+            // Create start and target nodes using the grid's height info
+            AStarPathfinding.Node start = new AStarPathfinding.Node(size / 2, size / 2, grid[size / 2][size / 2]);
+            AStarPathfinding.Node target = new AStarPathfinding.Node(targetGridX, targetGridZ, grid[targetGridX][targetGridZ]);
             currentPath = pathfinding.findPath(grid, start, target);
             pathIndex = 0;
         }
 
-        // Follow the path if it exists
         if (currentPath != null && pathIndex < currentPath.size()) {
             AStarPathfinding.Node nextNode = currentPath.get(pathIndex);
-            // Convert grid coordinates back to world coordinates
             int worldX = originX + nextNode.x;
             int worldZ = originZ + nextNode.y;
-            Vec3d targetPos = new Vec3d(worldX + 0.5, this.getY(), worldZ + 0.5);
+            // Use the computed ground level for the Y coordinate
+            Vec3d targetPos = new Vec3d(worldX + 0.5, nextNode.height, worldZ + 0.5);
 
-            // Move toward the next node
             double dx = targetPos.x - this.getX();
             double dz = targetPos.z - this.getZ();
             float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
@@ -76,7 +70,11 @@ public class AllyBotEntity extends FakePlayerEntity {
             this.sidewaysSpeed = 0.0f;
             this.forwardSpeed = 0.5f; // Adjust speed as needed
 
-            // Check if the bot has reached the next node
+            // If next node is one block higher than current block position, jump.
+            if (nextNode.height == this.getBlockPos().getY() + 1) {
+                this.jump();
+            }
+
             if (this.getPos().isInRange(targetPos, 0.5)) {
                 pathIndex++;
             }
@@ -84,22 +82,47 @@ public class AllyBotEntity extends FakePlayerEntity {
 
         this.tickMovement();
     }
-
-    // Enhanced createGrid that maps a portion of the world into a grid of walkable (0) and obstacle (1) cells.
-    private int[][] createGrid(int originX, int originZ, int size, int y) {
+    
+    // Enhanced createGrid: compute ground level per cell.
+    // A cell is "safe" if the block at candidateY and candidateY+1 are air and the block below candidateY is solid.
+    // Allow a jump up of one block.
+    private int[][] createGrid(int originX, int originZ, int size, int baseY) {
+        final int OBSTACLE = -999;
         int[][] grid = new int[size][size];
-
+        
+        // Helper lambda to check safety at a given world coordinate.
+        java.util.function.Predicate<BlockPos> isSafe = pos -> {
+            BlockState state = this.getWorld().getBlockState(pos);
+            BlockState stateUp = this.getWorld().getBlockState(pos.up());
+            BlockState stateDown = this.getWorld().getBlockState(pos.down());
+            return state.isAir() && stateUp.isAir() && stateDown.isOpaqueFullCube();
+        };
+        
         for (int gx = 0; gx < size; gx++) {
             for (int gz = 0; gz < size; gz++) {
                 int worldX = originX + gx;
                 int worldZ = originZ + gz;
-                BlockPos pos = new BlockPos(worldX, y, worldZ);
-                BlockState state = this.getWorld().getBlockState(pos);
-                // Mark as obstacle (1) if the block is not air, otherwise walkable (0)
-                grid[gx][gz] = state.isAir() ? 0 : 1;
+                int ground;
+                // First try the base level.
+                BlockPos pos = new BlockPos(worldX, baseY, worldZ);
+                if (isSafe.test(pos)) {
+                    ground = baseY;
+                }
+                // Allow one block jump up.
+                else if (isSafe.test(pos.up())) {
+                    ground = baseY + 1;
+                }
+                else {
+                    // Search downward for a safe cell.
+                    int candidate = baseY;
+                    while (candidate > 0 && !isSafe.test(new BlockPos(worldX, candidate, worldZ))) {
+                        candidate--;
+                    }
+                    ground = isSafe.test(new BlockPos(worldX, candidate, worldZ)) ? candidate : OBSTACLE;
+                }
+                grid[gx][gz] = ground;
             }
         }
-
         return grid;
     }
 }

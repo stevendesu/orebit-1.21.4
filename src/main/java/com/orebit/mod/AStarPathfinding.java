@@ -11,14 +11,22 @@ import java.util.Set;
 
 public class AStarPathfinding {
 
+    public final static int OBSTACLE = -999;
+
     static class Node {
         int x, y;
+        int height;
         double gCost, hCost, fCost;
         Node parent;
 
-        public Node(int x, int y) {
+        public Node(int x, int y, int height) {
             this.x = x;
             this.y = y;
+            this.height = height;
+        }
+
+        public Node(int x, int y) {
+            this(x, y, 0);
         }
 
         public void calculateCosts(Node target, double gCostFromStart) {
@@ -84,8 +92,14 @@ public class AStarPathfinding {
             int newX = node.x + dx[i];
             int newY = node.y + dy[i];
 
-            if (newX >= 0 && newX < grid.length && newY >= 0 && newY < grid[0].length && grid[newX][newY] == 0) {
-                neighbors.add(new Node(newX, newY));
+            if (newX >= 0 && newX < grid.length && newY >= 0 && newY < grid[0].length) {
+                int neighborHeight = grid[newX][newY];
+                if (neighborHeight == OBSTACLE) continue;
+                // Allow jump up one block; dropping down is unlimited.
+                if (neighborHeight > node.height + 1) continue;
+                Node neighbor = new Node(newX, newY, neighborHeight);
+                neighbor.parent = node;
+                neighbors.add(neighbor);
             }
         }
 
