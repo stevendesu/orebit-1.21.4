@@ -1,6 +1,8 @@
-package com.orebit.mod;
+package com.orebit.mod.bot;
 
 import com.mojang.authlib.GameProfile;
+import com.orebit.mod.Orebit;
+
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;

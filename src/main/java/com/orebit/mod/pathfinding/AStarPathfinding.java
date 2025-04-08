@@ -1,4 +1,4 @@
-package com.orebit.mod;
+package com.orebit.mod.pathfinding;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,9 +13,10 @@ public class AStarPathfinding {
 
     public final static int OBSTACLE = -999;
 
-    static class Node {
-        int x, y;
-        int height;
+    public static class Node {
+        public int x;       // changed: made public
+        public int y;       // changed: made public
+        public int height;  // changed: made public
         double gCost, hCost, fCost;
         Node parent;
 

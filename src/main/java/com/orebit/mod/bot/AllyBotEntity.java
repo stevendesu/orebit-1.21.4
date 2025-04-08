@@ -1,8 +1,10 @@
-package com.orebit.mod;
+package com.orebit.mod.bot;
 
 import java.util.List;
 
 import com.mojang.authlib.GameProfile;
+import com.orebit.mod.pathfinding.AStarPathfinding;
+import com.orebit.mod.pathfinding.AStarPathfinding.Node;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;

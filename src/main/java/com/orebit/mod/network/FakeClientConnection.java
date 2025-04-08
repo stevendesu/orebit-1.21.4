@@ -1,6 +1,5 @@
-package com.orebit.mod;
+package com.orebit.mod.network;
 
-import io.netty.channel.local.LocalChannel;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 

@@ -1,17 +1,12 @@
-package com.orebit.mod;
+package com.orebit.mod.ai;
 
-import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.pathing.BirdNavigation;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
-import java.util.function.Predicate;
 
 public class FollowPlayerOwner extends Goal {
     private final MobEntity mob;

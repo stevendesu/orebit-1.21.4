@@ -1,6 +1,8 @@
-package com.orebit.mod;
+package com.orebit.mod.bot;
 
 import com.mojang.authlib.GameProfile;
+import com.orebit.mod.network.FakeNetworkHandler;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
 import net.minecraft.server.MinecraftServer;
