@@ -17,3 +17,7 @@ More woo!
 ## Heading 2 again
 
 More words
+
+![Test image](silly-graph.jpg)
+
+Did that load?
