@@ -1,0 +1,3 @@
+site_name: 'Orebit'
+docs_dir: .
+site_dir: ../docs_site

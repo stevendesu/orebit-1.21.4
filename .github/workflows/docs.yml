@@ -1,0 +1,40 @@
+# .github/workflows/docs.yml
+name: Deploy Docs
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install mkdocs-material
+
+      - name: Build the MkDocs site
+        run: mkdocs build --config-file docs/mkdocs.yml
+
+      - name: Deploy to gh-pages branch
+        run: |
+          mkdir tmp_dir
+          cd tmp_dir
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git init
+          git checkout -b gh-pages
+          git remote add origin https://${{ secrets.GH_TOKEN }}@github.com/stevendesu/orebit-1.21.4.git
+          cp -r ../docs_site/* .
+          git add .
+          git commit -m "Deploy docs"
+          git push -f origin gh-pages

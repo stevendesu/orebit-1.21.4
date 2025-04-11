@@ -1,0 +1,172 @@
+## No file should ever be named "Utils" or "Utility" or "Helper"
+
+If you have a "Vector" object and want to know what operations it can perform, Intellisense
+is able to help you when all operations are methods on the object itself. Consider this
+code:
+
+```
+Vector myVec = new Vector(1, 2, 3);
+```
+
+If I type `myVec.` then Intellisense will helpfully complete methods like `add`, `subtract`,
+`multiply`, etc. However Intellisense would have no way of knowing that a `VectorUtils`
+class exists somewhere in the ether providing `VectorUtils.add(vec1, vec2)`. Unless you
+psychically knew to type `VectorUtils`, Intellisense is helpless here.
+
+"Utils" and "Helper" files also have a tendency to get bloated, as there's no clear
+separation of concerns. Any and every feature or method you could want to add could
+reasonably be defined as a "utility", so these files have a tendency to grow WAY too
+large.
+
+Instead, all classes should have a single responsibility and should manage their own
+state and logic internally.
+
+This leads to my next design principle:
+
+## Prefer smart objects over plain data objects
+
+Instead of having plain objects to hold an actor's "State", then having a "StateMutator"
+to modify it, there's no reason you can't put a `.mutate()` method on the State itself.
+
+This puts all logic colocated with relevant data, and reduces the number of classes
+that must be maintained.
+
+A static `build()` method is better than a `Builder` class since it's discoverable and
+keeps all logic in a single file.
+
+## Favor abstract classes over enums
+
+Suppose you have two types of "Entity": a "Moving" entity and a "Static" entity. Having
+a single `Entity` class with a `type` property holding an enum of `EntityType.MOVING`
+or `EntityType.STATIC` seems sufficient, but leads to a huge number of branches in our
+internal methods:
+
+```
+public processTick() {
+    if (type == Entity.MOVING) {
+        ...
+    } else {
+        ...
+    }
+}
+```
+
+This leads to lots of negatives:
+
+ * For a given instance of the Entity class, most of the code in the file isn't ever
+   executed
+ * If you add a new type, you have to weave the implementation into all of the methods
+ * It's very easy to introduce subtle bugs when code flow is hard to understand
+ * Increased CCN for files leads to longer development time
+
+A better solution is to have an abstract `Entity` class with two subclasses:
+
+```
+class MovingEntity extends Entity {
+    public processTick() {
+        ...
+    }
+}
+class StaticEntity extends Entity {
+    public processTick() {
+        ...
+    }
+}
+```
+
+## Utilize the Strategy pattern for multiple implementations
+
+When there's more than one way you can handle things, always rely on dynamic dispatch to
+a handling class. Instead of:
+
+```
+String fileContents = file.read(path, "utf8"); // "How" to read the file is a parameter
+```
+
+Prefer:
+
+```
+FileParser parser = new UTF8Parser();
+String fileContents = file.read(path, parser);
+```
+
+Or better yet:
+
+```
+FileParser parser = new UTF8Parser();
+FileReader reader = new FileReader(parser);
+String fileContents = reader.read(path);
+```
+
+This final solution uses dependency injection to abstract away the process of reading.
+
+## Avoid conditional branches whenever possible
+
+Conditional branches means branch prediction, which means incorrect predictions may be
+taken. Writing non-branching logic leads to higher performance:
+
+```
+function normalizeSlow(int input) {
+    if (input < 0) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+
+private static int[] normalValues = [-1, 1];
+function normalizeFast(int input) {
+    return normalValues[input >= 0];
+}
+```
+
+## Avoid repeated names, even in different namespaces or contexts
+
+At first glance it may seem like `Event.Context` and `GUI.Context` are different classes,
+and there's no collisions happening here. But what happens if I type the following?
+
+```
+Context context = new Context();
+```
+
+The `Context` type isn't defined, so my IDE will recommend I import it. But there's two
+valid imports!
+
+For this reason, prefer names like `Event.EventContext` and `GUI.GUIContext`. It may
+feel a bit redundant, but it means there's only one possible import for a given type.
+
+## Prefer statically-sized data structures
+
+This is a performance optimization. Using dynamically-sized structures like `String`,
+`Vector`, or `HashMap` means that part of our object is stored as a pointer with data
+allocated on the heap. This means that object pools attempting to reuse our objects by
+reinitializing their values will be forced to allocate new memory on the heap.
+
+Heap allocation is not only very slow (waiting for the operating system to find available
+memory), but also triggers garbage collection processes in Java. This is a performance
+NIGHTMARE. Instead, we should pre-allocate the maximum possible size and be fine with
+a few bytes being wasted. Instead of `String`, use `char[32]` (limiting string length
+to 32 characters and requiring that all strings, even less than 32, still occupy 32
+bytes). Instead of `Vector`, use `int[100]` (allowing for *up to* 100 values).
+
+## Prefer determinism
+
+Random values not only introduce potential vectors of malicious manipulation, and depending
+on the PRNG a performance cost, but they also make debugging and reasoning more difficult.
+
+Algorithms should be deterministic and easy to follow.
+
+## Abstraction, abstraction, abstraction
+
+In order to optimize for performance, memory, and CPU we will often introduce data
+structures that are complex. Users of these data structures should not need to know
+anything about their implementation. A request like `world.getBlockData(x, y, z)` should
+"just work" without needing to know about octrees, graphs, caches, etc.
+
+## Open for extension
+
+Avoid the "final" keyword. Favor "protected" over "private".
+
+Anyone should be allowed to create new classes extend my existing classes and override
+their functionality. If someone misuses my code, that's on them. I always trust the
+developer.
