@@ -1,0 +1,1 @@
+Quickly testing what happens with an "index.md" inside of a folder

@@ -1,5 +1,3 @@
-# Sample Documentation
-
 Just playing around with mkdocs to see what happens
 
 ## Heading 2
