@@ -1,9 +1,11 @@
 package com.orebit.mod;
 
 import com.orebit.mod.worldmodel.pathing.ChunkNavLoader;
+import com.orebit.mod.worldmodel.pathing.NavBlock;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.Entity;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,9 @@ public class Orebit implements ModInitializer {
 
 			List<Entity> entities = player.getWorld().getEntitiesByClass(Entity.class, player.getBoundingBox().expand(20), e -> true);
 			LOGGER.info("Nearby entities after spawn: {}", entities);
+
+			LOGGER.info("Number of registered navblocks: " + NavBlock.getAllNavBlocks().size());
+			LOGGER.info("Mapped MineCraft blocks: " + NavBlock.blockMappings().size() + " / " + Registries.BLOCK.size());
 		});
 
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {

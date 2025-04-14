@@ -31,7 +31,7 @@ public final class TraversalAnalyzerMutable {
 
     private TraversalAnalyzerMutable() {}
 
-    public static TraversalClass classify(World world, BlockState[][][] blocks, int x, int y, int z) {
+    public static TraversalClass classify(World world, BlockState[] blocks, int x, int y, int z) {
         BlockState ground = getBlockState(blocks, x, y, z);
         BlockState air1 = getBlockState(blocks, x, y + 1, z);
         BlockState air2 = getBlockState(blocks, x, y + 2, z);
@@ -105,10 +105,10 @@ public final class TraversalAnalyzerMutable {
         return TraversalClass.BLOCKED;
     }
 
-    private static BlockState getBlockState(BlockState[][][] blocks, int x, int y, int z) {
+    private static BlockState getBlockState(BlockState[] blocks, int x, int y, int z) {
         if (x < 0 || x >= 16 || z < 0 || z >= 16 || y < 0 || y >= 18) return Blocks.AIR.getDefaultState();
 
-        return blocks[y][z][x];
+        return blocks[y + z * 20 + x * 20 * 20];
     }
 
     private static boolean isStandable(World world, BlockState state, int x, int y, int z) {
@@ -125,7 +125,7 @@ public final class TraversalAnalyzerMutable {
             || block == Blocks.LAVA;
     }
 
-    public static boolean isPlaceable(World world, BlockState[][][] blocks, BlockState state, int x, int y, int z) {
+    public static boolean isPlaceable(World world, BlockState[] blocks, BlockState state, int x, int y, int z) {
         // Step 1: Block must be replaceable (air, tall grass, fluid, etc.)
         if (!isReplaceable(state)) {
             return false;
@@ -178,7 +178,7 @@ public final class TraversalAnalyzerMutable {
             || block == Blocks.SOUL_CAMPFIRE;
     }
 
-    private static boolean isUnsupported(BlockState[][][] blocks, int x, int y, int z) {
+    private static boolean isUnsupported(BlockState[] blocks, int x, int y, int z) {
         BlockState belowState = getBlockState(blocks, x, y - 1, z);
         return belowState.isAir();
     }
@@ -218,7 +218,7 @@ public final class TraversalAnalyzerMutable {
             || block == Blocks.LAVA;
     }
 
-    private static boolean risksFluidFlow(BlockState[][][] blocks, int x, int y, int z) {
+    private static boolean risksFluidFlow(BlockState[] blocks, int x, int y, int z) {
         for (int[] offset : neighborOffsets) {
             BlockState neighbor = getBlockState(blocks, x + offset[0], y, z + offset[1]);
             // Is the adjacent block a fluid?

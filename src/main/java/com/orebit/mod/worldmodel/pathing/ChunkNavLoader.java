@@ -31,7 +31,7 @@ public class ChunkNavLoader {
                 NavSection[] sections = ChunkNavBuilder.buildAllSections(serverWorld, chunk);
                 long elapsed = System.nanoTime() - start;
 
-                System.out.println("[NavSection] Built for chunk " + pos + " in " + (elapsed / 1_000_000) + " ms");
+                // System.out.println("[NavSection] Built for chunk " + pos + " in " + (elapsed / 1_000_000) + " ms");
             }
         });
     }

@@ -17,3 +17,5 @@ theme:
 plugins:
   - search
   - offline
+markdown_extensions:
+  - tables
