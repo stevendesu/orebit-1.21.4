@@ -1,16 +1,13 @@
 package com.orebit.mod.worldmodel.pathing;
 
+import java.util.Set;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.registry.BuiltinRegistries;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-
-import java.util.Set;
 
 public final class TraversalAnalyzerMutable {
     private static final BlockPos.Mutable scratchPos = new BlockPos.Mutable();
@@ -106,9 +103,9 @@ public final class TraversalAnalyzerMutable {
     }
 
     private static BlockState getBlockState(BlockState[] blocks, int x, int y, int z) {
-        if (x < 0 || x >= 16 || z < 0 || z >= 16 || y < 0 || y >= 18) return Blocks.AIR.getDefaultState();
+        if (x < 0 || x >= 16 || z < 0 || z >= 16 || y < 0 || y >= 16) return Blocks.AIR.getDefaultState();
 
-        return blocks[y + z * 20 + x * 20 * 20];
+        return blocks[y + z * 16 + x * 16 * 16];
     }
 
     private static boolean isStandable(World world, BlockState state, int x, int y, int z) {

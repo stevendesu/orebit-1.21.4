@@ -1,1 +1,0 @@
-And a non-index.md

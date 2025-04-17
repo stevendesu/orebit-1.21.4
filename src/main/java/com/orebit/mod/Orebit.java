@@ -1,16 +1,18 @@
 package com.orebit.mod;
 
-import com.orebit.mod.worldmodel.pathing.ChunkNavLoader;
-import com.orebit.mod.worldmodel.pathing.NavBlock;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import com.orebit.mod.worldmodel.navblock.NavBlock;
+import com.orebit.mod.worldmodel.pathing.ChunkNavLoader;
+
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
 
 public class Orebit implements ModInitializer {
 	public static final String MOD_ID = "orebit";
@@ -20,18 +22,39 @@ public class Orebit implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+	volatile byte sink;
+	volatile boolean sink2;
+
+	private void benchmarkMe(ServerPlayerEntity player) {
+		World world = player.getWorld();
+		BlockPos origin = player.getBlockPos();
+		final int origX = origin.getX();
+		final int origZ = origin.getZ();
+		long start = System.nanoTime();
+		for (int i = 0; i < 100; i++) {
+			int x = i % 10;
+			int y = 40;
+			int z = i / 10;
+			BlockPos pos = new BlockPos(origX + x * 8 - 80, y, origZ + z * 8 - 80);
+			sink2 = world.getBlockState(pos).isSolidBlock(world, pos);
+		}
+		long duration = System.nanoTime() - start;
+		System.out.println("Benchmark: " + (duration / 100) + "ns");
+	}
+
 	@Override
 	public void onInitialize() {
+		ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+			// Accessing a member of NavBlock to cause the class to initialize
+			sink = NavBlock.AIR;
+		});
+
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayerEntity player = handler.getPlayer();
 			LOGGER.info("[Orebit] Player {} connected.", player.getName());
 			BotManager.spawnBotFor(player);
 
-			List<Entity> entities = player.getWorld().getEntitiesByClass(Entity.class, player.getBoundingBox().expand(20), e -> true);
-			LOGGER.info("Nearby entities after spawn: {}", entities);
-
-			LOGGER.info("Number of registered navblocks: " + NavBlock.getAllNavBlocks().size());
-			LOGGER.info("Mapped MineCraft blocks: " + NavBlock.blockMappings().size() + " / " + Registries.BLOCK.size());
+			benchmarkMe(player);
 		});
 
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {

@@ -38,7 +38,7 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	
+
 }
 
 processResources {
@@ -51,6 +51,10 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
+}
+
+runClient {
+    jvmArgs "-XX:StartFlightRecording=duration=60s,filename=myrecording.jfr"
 }
 
 java {
