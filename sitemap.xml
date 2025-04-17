@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://stevendesu.github.io/orebit-1.21.4/index.html</loc>
+         <lastmod>2025-04-17</lastmod>
+    </url>
+    <url>
+         <loc>https://stevendesu.github.io/orebit-1.21.4/pathfinding.html</loc>
+         <lastmod>2025-04-17</lastmod>
+    </url>
+    <url>
+         <loc>https://stevendesu.github.io/orebit-1.21.4/worldmodel.html</loc>
+         <lastmod>2025-04-17</lastmod>
+    </url>
+    <url>
+         <loc>https://stevendesu.github.io/orebit-1.21.4/Optimizations/index.html</loc>
+         <lastmod>2025-04-17</lastmod>
+    </url>
+    <url>
+         <loc>https://stevendesu.github.io/orebit-1.21.4/Optimizations/block_reading.html</loc>
+         <lastmod>2025-04-17</lastmod>
+    </url>
+    <url>
+         <loc>https://stevendesu.github.io/orebit-1.21.4/Optimizations/object_pooling.html</loc>
+         <lastmod>2025-04-17</lastmod>
+    </url>
+    <url>
+         <loc>https://stevendesu.github.io/orebit-1.21.4/getting_started/installation.html</loc>
+         <lastmod>2025-04-17</lastmod>
+    </url>
+</urlset>
